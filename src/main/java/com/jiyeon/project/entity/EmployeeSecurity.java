@@ -1,4 +1,4 @@
-package com.jiyeon.project.model;
+package com.jiyeon.project.entity;
 
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,7 +18,7 @@ public class EmployeeSecurity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<GrantedAuthority> authorities = new ArrayList<>();
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(employee.getRole()));
         return authorities;
     }

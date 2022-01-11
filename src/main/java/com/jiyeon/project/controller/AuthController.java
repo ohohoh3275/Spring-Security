@@ -1,16 +1,52 @@
 package com.jiyeon.project.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.jiyeon.project.entity.Employee;
+import com.jiyeon.project.repository.EmployeeRepository;
+import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 
-@RestController
+@Controller
 @RequestMapping("/auth")
+@AllArgsConstructor
 public class AuthController {
 
-    @GetMapping
-    public String main() {
-        return "auth ~ hello world";
+    private final EmployeeRepository employeeRepository;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @PostMapping("/login")
+    public @ResponseBody String loginOK () {
+        System.out.println(">>login??");
+        return "log in ed";
     }
+
+
+    @PostMapping("/join")
+    public @ResponseBody String joinOK(Employee employee){
+
+        System.out.println(employee.getName());
+        System.out.println(">>> join??");
+
+        String rawPassword = employee.getPassword();
+        String encodedPassword = bCryptPasswordEncoder.encode(rawPassword);
+
+        employee.setPassword(encodedPassword);
+        employee.setRole("USER_ROLE");
+
+        employeeRepository.save(employee);
+
+        return "joined";
+    }
+
+    @GetMapping("/logout")
+    public ModelAndView logout() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("logout.html");
+
+        return mv;
+    }
+
 }

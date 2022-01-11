@@ -1,17 +1,15 @@
-package com.jiyeon.project.model;
+package com.jiyeon.project.entity;
 
 
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Getter
 @Setter
+@Table(name="employees")
 public class Employee {
 
     @Id
