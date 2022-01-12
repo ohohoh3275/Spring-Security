@@ -19,8 +19,12 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
+import java.util.Collections;
 
 
 @Configuration
@@ -31,10 +35,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        // configure 에서 아래와 같은 방식을 주로 쓴다.
-        // 이전에는 오버라이드할때 디폴트값을 유지하면서 authRequest 적용하려고 다른 방식을 썼었다.
-        http.csrf().disable();
-        http.authorizeRequests()
+        http.cors().configurationSource(request -> {
+            CorsConfiguration config = new CorsConfiguration();
+            config.setAllowedOrigins(Collections.singletonList("http://localhost:3300"));
+            config.setAllowedMethods(Collections.singletonList("*"));
+            config.setAllowCredentials(true);
+            config.setAllowedHeaders(Collections.singletonList("*"));
+            config.setMaxAge(3600L);
+            return config;
+        }).and().
+        csrf().disable().
+        authorizeRequests()
                 .antMatchers("/auth/**").permitAll()
                 .antMatchers("/**").permitAll()
                 .antMatchers("/non-auth/**/**").permitAll()
