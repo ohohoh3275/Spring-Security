@@ -1,6 +1,7 @@
 package com.jiyeon.project.entity;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+@Data
 @AllArgsConstructor
 public class EmployeeSecurity implements UserDetails {
 
@@ -30,7 +32,7 @@ public class EmployeeSecurity implements UserDetails {
 
     @Override
     public String getUsername() {
-        return employee.getName();
+        return employee.getUsername();
     }
 
     @Override

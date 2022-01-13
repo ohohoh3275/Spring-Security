@@ -1,15 +1,19 @@
 package com.jiyeon.project.controller;
 
 import com.jiyeon.project.entity.Employee;
+import com.jiyeon.project.entity.EmployeeSecurity;
 import com.jiyeon.project.repository.EmployeeRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 
-@Controller
+@RestController
 @RequestMapping("/auth")
 @AllArgsConstructor
 public class AuthController {
@@ -23,11 +27,9 @@ public class AuthController {
         return "log in ed";
     }
 
-
     @PostMapping("/join")
     public @ResponseBody String joinOK(Employee employee){
 
-        System.out.println(employee.getName());
         System.out.println(">>> join??");
 
         String rawPassword = employee.getPassword();

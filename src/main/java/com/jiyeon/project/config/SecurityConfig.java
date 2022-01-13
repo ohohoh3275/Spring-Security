@@ -1,28 +1,19 @@
 package com.jiyeon.project.config;
 
-import com.jiyeon.project.entity.Employee;
-import com.jiyeon.project.repository.EmployeeRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-
-import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 import java.util.Collections;
 
@@ -30,31 +21,41 @@ import java.util.Collections;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true)
+@AllArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private final Oauth2UserService oauth2UserService;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        http.cors().configurationSource(request -> {
-            CorsConfiguration config = new CorsConfiguration();
-            config.setAllowedOrigins(Collections.singletonList("http://localhost:3300"));
-            config.setAllowedMethods(Collections.singletonList("*"));
-            config.setAllowCredentials(true);
-            config.setAllowedHeaders(Collections.singletonList("*"));
-            config.setMaxAge(3600L);
-            return config;
-        }).and().
-        csrf().disable().
+//        http.cors().configurationSource(request -> {
+//            CorsConfiguration config = new CorsConfiguration();
+//            config.setAllowedOrigins(Collections.singletonList("http://localhost:3300"));
+//            config.setAllowedMethods(Collections.singletonList("*"));
+//            config.setAllowCredentials(true);
+//            config.setAllowedHeaders(Collections.singletonList("*"));
+//            config.setMaxAge(3600L);
+//            return config;
+//        }).and().
+//        csrf().ignoringAntMatchers("/non-auth/**").csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).and().
+        http.
         authorizeRequests()
                 .antMatchers("/auth/**").permitAll()
                 .antMatchers("/**").permitAll()
-                .antMatchers("/non-auth/**/**").permitAll()
-                .antMatchers("/admin/**").access("hasRole('ROLE_ADMIN')")
+                .antMatchers("/non-auth/**").permitAll()
+                .antMatchers("/admin/**").permitAll()
                 .and()
                 .formLogin()
                 .loginPage("/login")
-                .loginProcessingUrl("../auth/login") // check the path out !
-                .defaultSuccessUrl("/");
+                .loginProcessingUrl("/auth/login") // check the path out !
+                .defaultSuccessUrl("/")
+                .and()
+                .oauth2Login()
+                .loginPage("/login") // when google login completed, needed to be afterward works ->with token && profiles
+                .userInfoEndpoint()
+                .userService(oauth2UserService);
+
 
         /**
          * authenticated();
@@ -62,6 +63,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
          * anyRequest();
          * denyAll();
          */
+
+
     }
 
 
