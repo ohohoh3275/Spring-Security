@@ -15,6 +15,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,16 +37,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // to make sure not to generate session 설정추가
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .cors().configurationSource(request -> {
-            CorsConfiguration config = new CorsConfiguration();
-            config.setAllowedOrigins(Collections.singletonList("http://localhost:3300"));
-            config.setAllowedMethods(Collections.singletonList("*"));
-            config.setAllowCredentials(true);
-            config.setAllowedHeaders(Collections.singletonList("*"));
-            config.setMaxAge(3600L);
-            config.setExposedHeaders(Arrays.asList("Authorization")); //if there is other application
-            return config;
-        })
+                .cors().configurationSource(corsConfigurationSource())
                 .and().
         csrf().disable()
                 .authorizeRequests()
@@ -51,6 +45,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/**").permitAll()
                 .antMatchers("/non-auth/**").permitAll()
                 .antMatchers("/admin/**").permitAll();
+
+        // 구글 로그인 하는 부분 주석함.
+        // jwt토큰 구현 하는 부분은 프론트 포트번호 다를때 사용하는 경우를 전제로 한다.
+        // 프론트 붙혀서 하는 경우에도 구글로그인이 되는지 확인필요.
 
 //                .formLogin()
 //                .loginPage("/login")
@@ -61,6 +59,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .loginPage("/login") // when google login completed, needed to be afterward works ->with token && profiles
 //                .userInfoEndpoint()
 //                .userService(oauth2UserService);
+
 
         /**
          * authenticated();
@@ -103,6 +102,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public PasswordEncoder passwordEncoder(){
         return NoOpPasswordEncoder.getInstance();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(Collections.singletonList("http://localhost:3300"));
+        config.setAllowedMethods(Collections.singletonList("*"));
+        config.setAllowCredentials(true);
+        config.setAllowedHeaders(Collections.singletonList("*"));
+        config.setMaxAge(3600L);
+        config.setExposedHeaders(Arrays.asList("Authorization")); //if there is other application
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+
+        return source;
     }
 
 }
