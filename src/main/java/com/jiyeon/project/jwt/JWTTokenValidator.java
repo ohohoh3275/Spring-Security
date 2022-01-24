@@ -1,4 +1,4 @@
-package com.jiyeon.project.filter;
+package com.jiyeon.project.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

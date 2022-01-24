@@ -1,7 +1,5 @@
-package com.jiyeon.project.filter;
+package com.jiyeon.project.jwt;
 
-import org.hibernate.query.criteria.internal.ParameterContainer;
-import org.hibernate.query.criteria.internal.path.MapKeyHelpers;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -33,8 +31,10 @@ public class JWTTokenGenerator extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         if(null != authentication){
             SecretKey key = Keys.hmacShaKeyFor(JWT_KEY.getBytes(StandardCharsets.UTF_8));
+
             String jwt = Jwts.builder()
                     .setIssuer("JiYeon")
                     .setSubject("JWT Token")
@@ -58,4 +58,5 @@ public class JWTTokenGenerator extends OncePerRequestFilter {
         }
         return String.join(",", authoritiesSet);
     }
+
 }
