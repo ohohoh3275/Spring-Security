@@ -37,7 +37,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         //filter 추가 --> spring filter
-        http.addFilterBefore(new AuthoritiesLoggingAfterFilter(), BasicAuthenticationFilter.class);
+//        http.addFilterBefore(new AuthoritiesLoggingAfterFilter(), BasicAuthenticationFilter.class);
 
         // to make sure not to generate session 설정추가
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
