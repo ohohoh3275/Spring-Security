@@ -1,5 +1,6 @@
 package com.jiyeon.project.config;
 
+import com.jiyeon.project.jwt.AuthoritiesLoggingAfterFilter;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -34,12 +36,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
+        //filter 추가 --> spring filter
+        http.addFilterBefore(new AuthoritiesLoggingAfterFilter(), BasicAuthenticationFilter.class);
+
         // to make sure not to generate session 설정추가
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .cors().configurationSource(corsConfigurationSource())
-                .and().
-        csrf().disable()
+                .and()
+        .formLogin().disable()
+        .httpBasic().disable()
+        .csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/auth/**").permitAll()
                 .antMatchers("/**").permitAll()
