@@ -37,7 +37,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         //filter 추가 --> spring filter
-//        http.addFilterBefore(new AuthoritiesLoggingAfterFilter(), BasicAuthenticationFilter.class);
+        http.addFilterBefore(new AuthoritiesLoggingAfterFilter(), BasicAuthenticationFilter.class);
+        http.addFilterAfter(new AuthoritiesLoggingAfterFilter(), BasicAuthenticationFilter.class);
+
 
         // to make sure not to generate session 설정추가
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -67,13 +69,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .userInfoEndpoint()
 //                .userService(oauth2UserService);
 
-
         /**
          * authenticated();
          * permitAll();
          * anyRequest();
          * denyAll();
          */
+
+
+
+        // 하나의 세션만 갖도록 ->> 하나의 아이디는 하나의 브라우저에서만 로그인 될 수 있다.
+        http.sessionManagement()
+                .maximumSessions(1)
+                .expiredUrl("/login/expired")
+                .maxSessionsPreventsLogin(true);
 
     }
 
