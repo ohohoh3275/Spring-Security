@@ -16,6 +16,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.header.writers.DelegatingRequestMatcherHeaderWriter;
+import org.springframework.security.web.header.writers.StaticHeadersWriter;
+import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -102,6 +106,43 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .frameOptions()
                 .and()
                 .xssProtection();
+
+
+        /**
+         * 사용자 정의 보안헤더 예시 1)
+         */
+
+        http.headers()
+                .addHeaderWriter(
+                        new StaticHeadersWriter(
+                        "X-Content-Security-Policy",
+                        "default-src 'self'"))
+                .addHeaderWriter(
+                        new StaticHeadersWriter(
+                                "X-WebKit-CSP",
+                                "default-src 'self'"));
+
+        /**
+         * 사용자 정의 보안헤더 예시 2)
+         */
+
+        http.headers()
+                .addHeaderWriter(
+                        new XFrameOptionsHeaderWriter(
+                                XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN
+                        )
+                );
+
+        /**
+         * 사용자 정의 보안헤더 예시 3)
+         */
+        DelegatingRequestMatcherHeaderWriter headerWriter =
+                new DelegatingRequestMatcherHeaderWriter(
+                        new AntPathRequestMatcher("/login"),
+                        new XFrameOptionsHeaderWriter());
+
+        http.headers()
+                .addHeaderWriter(headerWriter);
 
     }
 
