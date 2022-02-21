@@ -77,12 +77,31 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
          */
 
 
-
-        // 하나의 세션만 갖도록 ->> 하나의 아이디는 하나의 브라우저에서만 로그인 될 수 있다.
+        /**
+         *  하나의 세션만 갖도록 ->> 하나의 아이디는 하나의 브라우저에서만 로그인 될 만 있다.
+         *  이러한 접근법을 사용할 경우 로그아웃을 하지 않고 브라우저를 종료하면
+         *  세션이 종료될때까지 애플리케이션에 로그인할 수 없다.
+         */
         http.sessionManagement()
                 .maximumSessions(1)
                 .expiredUrl("/login/expired")
                 .maxSessionsPreventsLogin(true);
+
+
+        /**
+         * 시큐리티에서 제공하는 보안 http 응답헤더s
+         */
+
+        http.headers()
+                .cacheControl()
+                .and()
+                .contentTypeOptions()
+                .and()
+                .httpStrictTransportSecurity()
+                .and()
+                .frameOptions()
+                .and()
+                .xssProtection();
 
     }
 
