@@ -1,21 +1,27 @@
 package com.kotlin.jwt.security.controller
 
+import SecurityConfig
 import com.kotlin.jwt.security.auth.AuthenticationRequest
-import org.springframework.beans.factory.annotation.Autowired
+import com.kotlin.jwt.security.auth.AuthenticationResponse
+import com.kotlin.jwt.security.util.JwtUtil
+import org.springframework.context.ApplicationContext
+import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RestController
-
+import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.web.bind.annotation.*
 
 @RestController
-class AuthController()  {
+@RequestMapping("/")
+class AuthController(val userDetailService: UserDetailsService) {
 
-    val authenticationManager: AuthenticationManager = AuthenticationManager()
+    // 이부분 생성자도?? ???
+    var ac: ApplicationContext = AnnotationConfigApplicationContext(SecurityConfig::class.java)
+    val authenticationManager = ac.getBean(AuthenticationManager::class.java)
+    val jwtUtil: JwtUtil = JwtUtil()
 
     @GetMapping("/hi")
     fun hi(): String {
@@ -23,12 +29,20 @@ class AuthController()  {
     }
 
     @PostMapping("/auth")
-    fun createAuthToken(@RequestBody request: AuthenticationRequest): ResponseEntity<Unit> {
-        try {
-            authenticationManager.authenticate(UsernamePasswordAuthenticationToken(request.username, request.password))
+    fun createAuthToken(): ResponseEntity<Any> {
+        println("authauth")
+//        println(request.username)
+//        try {
+//            authenticationManager.authenticate(UsernamePasswordAuthenticationToken(request.username, request.password))
+//        } catch (e: BadCredentialsException) {
+//            throw Exception("올바르지 않은 아이디 비번", e)
+//        }
+//
+//        val userDetails: UserDetails = userDetailService.loadUserByUsername(request.username)
+//        val jwt: String? = jwtUtil.generateToken(userDetails)
 
-        } catch (e: BadCredentialsException) {
-            throw Exception("올바르지 않은 아이디 비번", e)
-        }
+        println("??")
+        //return ResponseEntity.ok(jwt?.let { AuthenticationResponse(it) })
+        return ResponseEntity.ok("okok")
     }
 }
