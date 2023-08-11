@@ -1,41 +1,48 @@
 
-import com.kotlin.jwt.security.service.JWTUserDetailService
 import org.springframework.context.annotation.Bean
-import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.crypto.password.NoOpPasswordEncoder
-import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.config.annotation.web.configurers.CorsConfigurer
+import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer
+import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer
+import org.springframework.security.web.SecurityFilterChain
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+import java.util.List
 
-// java 버전을 올렸더니 WebSerucityConfigurerAdapter은 deprecated 되었다고 한다.
+@Configuration
 @EnableWebSecurity
-class SecurityConfig() : WebSecurityConfigurerAdapter() {
+class SecurityConfig() {
 
-    // Q 생성자를 요런식으로 하면 되나..?
-    val jwtUserDetailService: JWTUserDetailService = JWTUserDetailService()
-
-    override fun configure(auth: AuthenticationManagerBuilder) {
-        auth.userDetailsService(jwtUserDetailService)
-    }
-
-    override fun configure(http: HttpSecurity) {
-        http.csrf().disable()
-            .authorizeRequests()
-            .antMatchers("/auth")
-            .permitAll()
-            .anyRequest()
-            .authenticated()
+    @Bean
+    @Throws(Exception::class)
+    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain? {
+        http
+            .csrf { csrf: CsrfConfigurer<HttpSecurity> -> csrf.disable() }
+            .cors { corsConfig: CorsConfigurer<HttpSecurity?> ->
+                corsConfig.configurationSource(
+                    corsConfigurationSource()
+                )
+            }
+            .httpBasic { httpbasic: HttpBasicConfigurer<HttpSecurity> -> httpbasic.disable() }
+            .authorizeHttpRequests { auth ->
+                auth.anyRequest().permitAll()
+            }
+        return http.build()
     }
 
     @Bean
-    fun passwordEncoder(): PasswordEncoder {
-        return NoOpPasswordEncoder.getInstance()
-    }
+    fun corsConfigurationSource(): CorsConfigurationSource? {
+        val configuration = CorsConfiguration()
+        configuration.allowedOriginPatterns = List.of("*")
+        configuration.allowedMethods = listOf("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+        configuration.allowCredentials = true
+        configuration.allowedHeaders = List.of("*")
+        val source = UrlBasedCorsConfigurationSource()
+        source.registerCorsConfiguration("/**", configuration)
 
-    @Bean
-    override fun authenticationManager(): AuthenticationManager {
-        return super.authenticationManagerBean()
+        return source
     }
 }
